@@ -213,4 +213,29 @@ describe('express', () => {
       })
     })
   })
+
+  it('should handle http$.status codes properly', (done) => {
+    var config = {
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          boom: true
+        }
+      }
+    }
+
+    si.add('role:test,cmd:boom', (msg, reply) => reply(null, {http$: {status: 403}, msg: '403 body'}))
+
+    si.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      Request.get('http://127.0.0.1:3000/boom', {followRedirect: false}, (err, res, body) => {
+        if (err) return done(err)
+        body = JSON.parse(body)
+        expect(res.statusCode).to.equal(403)
+        expect(body).to.be.equal({msg: '403 body'})
+        done()
+      })
+    })
+  })
 })

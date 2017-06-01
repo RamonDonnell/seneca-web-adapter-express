@@ -79,6 +79,9 @@ function handleRoute (seneca, options, request, reply, route, next) {
         return reply.redirect(route.redirect)
       }
       if (route.autoreply) {
+        _.has(response, 'http$.status') &&
+          (reply = reply.status(response.http$.status)) &&
+          delete response.http$
         return reply.send(response)
       }
     })
